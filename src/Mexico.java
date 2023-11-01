@@ -28,6 +28,9 @@ public class Mexico {
 		Player[] players; // The players (array of Player objects)
 		Player current; // Current player for round
 		Player leader; // Player starting the round
+		Player secPlayer = null; // Player playing after the leader
+		Player thrPlayer = null; // Player playing after the second player
+		int playedAmt = 0; // Amount of players who made their turn this round
 
 		players = getPlayers();
 		current = getRandomPlayer(players);
@@ -36,8 +39,8 @@ public class Mexico {
 		out.println("Mexico Game Started");
 		statusMsg(players);
 
-		// while (players.length > 1) { // Game over when only one player left
-
+	while (players.length > 1) { // Game over when only one player left
+//uncommented this for testing
 		// ----- In ----------
 		String cmd = getPlayerChoice(current);
 		if ("r".equals(cmd)) {
@@ -46,14 +49,29 @@ public class Mexico {
 
 			// ---- Out --------
 			roundMsg(current);
+			current.fstDice = rand.nextInt(1,7);
+			current.secDice = rand.nextInt(1,7);
 
 		} else if ("n".equals(cmd)) {
 			// Process
+			playedAmt++; //A player finished their turn
+			//a way of making n choose a different player each time within a round
+			//(suboptimal since rand for loop leads to unpredictable calculation times)
+			for (boolean played = true; played;){
+				current = players[rand.nextInt(3)];
+				if (playedAmt == 1) {//if 1 player has played
+					played = current == leader;//if the chosen player is leader, then he has already played
+					secPlayer = current; //choosing second player
+				} else if (playedAmt == 2) {//if 2 players have played
+					played = current == leader || current == secPlayer;//both the leader and the second player played
+					thrPlayer = current; //choosing third player
+				}
+			}
 		} else {
 			out.println("?");
 		}
 
-		// if ( round finished) {
+		if (players.length < 3) { //removed the comment from the code and prevented it from running (spam)
 		// --- Process -----
 
 		// ----- Out --------------------
@@ -61,8 +79,8 @@ public class Mexico {
 		out.println("Next to roll is " + current.name);
 
 		statusMsg(players);
-		// }
-		// }
+		}
+		}
 		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot + " from pot");
 	}
 
@@ -125,8 +143,8 @@ public class Mexico {
 		public Player(String name){
 			this.name = name;
 			this.amount = startAmount;
-			this.fstDice = rand.nextInt(0,7);
-			this.secDice = rand.nextInt(0,7);
+			this.fstDice = rand.nextInt(1,7);
+			this.secDice = rand.nextInt(1,7);
 			this.nRolls = 1;
 		}
 	}
