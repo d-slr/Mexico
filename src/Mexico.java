@@ -1,10 +1,5 @@
 
-import java.util.SplittableRandom;
-import java.util.Scanner;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 import java.lang.Math;
 
@@ -23,7 +18,6 @@ public class Mexico {
 
 	final SplittableRandom rand = new SplittableRandom();
 	final Scanner sc = new Scanner(in);
-	final int maxRolls = 3; // No player may exceed this
 	final int startAmount = 3; // Money for a player. Select any
 	final int mexico = 1000; // A value greater than any other
 
@@ -34,6 +28,7 @@ public class Mexico {
 		Player leader; // Player starting the round
 		int playedAmt = 0; // Amount of players who made their turn this round
 		boolean roundDone = false;
+		int maxRolls = 3;
 
 
 		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers())); // The players (array of Player objects)
@@ -43,37 +38,56 @@ public class Mexico {
 		out.println("Mexico Game Started");
 		statusMsg(players);
 
-	while (players.length > 1) { // Game over when only one player left
-//uncommented this for testing
-		// ----- In ----------
-		String cmd = getPlayerChoice(current);
-		if ("r".equals(cmd)) {
+		while (players.length > 1) { // Game over when only one player left
 
-			// --- Process ------
+			String cmd = getPlayerChoice(current);
 
-			// ---- Out --------
-			current.fstDice = rand.nextInt(1,7);
-			current.secDice = rand.nextInt(1,7);
-			roundMsg(current);
+			if (current.nRolls == 0 && cmd.equals("n")) {
 
-		} else if ("n".equals(cmd)) {
-			playedAmt++;
-			current = players[playedAmt];
-		} else {
-			out.println("?");
-		}
+				out.println("Unable to skip yet, you roll instead");
+				cmd = "r";
 
-		if (roundDone) { //aughhhhhh
-			roundDone = false;
-			playedAmt = 0;
-		// --- Process -----
+			}
 
-		// ----- Out --------------------
-		out.println("Round done ... lost!");
-		out.println("Next to roll is " + current.name);
+			if ("r".equals(cmd)) {
 
-		statusMsg(players);
-		}
+				if (current.nRolls == maxRolls) {
+
+					out.println("You have already rolled the maximum " +
+							"amount of times for this round, you skip instead");
+					playedAmt++;
+					maxRolls = leader.nRolls;
+					current = next(players, playedAmt);
+
+				} else {
+
+					rollDice(current);
+
+				}
+
+			} else if ("n".equals(cmd)) {
+
+				playedAmt++;
+				maxRolls = leader.nRolls;
+				current = next(players, playedAmt);
+
+			} else {
+
+				out.println("life goes onandonandon");
+
+			}
+
+			if (allRolled(players, playedAmt)) { //aughhhhhh
+				roundDone = false;
+				playedAmt = 0;
+				// --- Process -----
+
+				// ----- Out --------------------
+				out.println("Round done ... lost!");
+				out.println("Next to roll is " + current.name);
+
+				statusMsg(players);
+			}
 		}
 		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot + " from pot");
 	}
@@ -89,6 +103,17 @@ public class Mexico {
 			}
 		}
 		return -1;
+	}
+	Player next (Player[] players, int playedAmt) {
+
+		return players[playedAmt];
+
+	}
+	void rollDice (Player current){
+		current.fstDice = rand.nextInt(1,7);
+		current.secDice = rand.nextInt(1,7);
+		current.nRolls++;
+		roundMsg(current);
 	}
 
 	Player[] shufflePlayers(Player[] players) {
@@ -125,6 +150,10 @@ public class Mexico {
 	}
 
 	//returns the number of players
+
+	boolean allRolled(Player[] players, int playedAmt){
+		return players.length == playedAmt;
+	}
 	int askNumberOfPlayers() {
 		int answer;
 		while (true) {
@@ -152,7 +181,7 @@ public class Mexico {
 		for (int i = 0; i < numPs; i++) {
 			String name;
 			while (true) {
-				out.println("Give the name for player " + i + "> ");
+				out.println("Give the name for player " + (i+1) + "> ");
 				name = sc.nextLine();
 				if ((name == null || name.isEmpty() || name.trim().isEmpty())) {
 					out.println("Enter a valid non-empty name!!! ");
@@ -197,7 +226,7 @@ public class Mexico {
 		public Player(String name){
 			this.name = name;
 			this.amount = startAmount;
-			this.nRolls = 1;
+			this.nRolls = 0;
 		}
 	}
 
