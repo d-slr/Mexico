@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.lang.Math;
+
 import static java.lang.System.*;
 
 /*
@@ -33,9 +35,10 @@ public class Mexico {
 		int playedAmt = 0; // Amount of players who made their turn this round
 		boolean roundDone = false;
 
+
 		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers())); // The players (array of Player objects)
 		current = players[playedAmt];
-		leader = current; // uhsssssshshhhhh
+		leader = current;
 
 		out.println("Mexico Game Started");
 		statusMsg(players);
@@ -95,6 +98,31 @@ public class Mexico {
 	}
 
 	// ---------- IO methods (nothing to do here) -----------------------
+
+	//Return value of a players roll, accounting for doublettes and mexico
+	int score(Player player) {
+		int a = player.fstDice;
+		int b = player.secDice;
+		if (a == b) {
+			return a * 100;
+		} else if (a+b == 3) {
+			return mexico;
+		} else {
+			return (Math.max(a, b) * 10) + Math.min (a, b);
+		}
+
+	}
+
+	//Returns first player with lowest score
+	Player getLoser(Player[] players) {
+		Player lowest = players[players.length - 1];
+		for (Player p : players) {
+			if ((score(p) < score(lowest)) {
+				lowest = p;
+			}
+		}
+		return lowest;
+	}
 
 	//returns the number of players
 	int askNumberOfPlayers() {
