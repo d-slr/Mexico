@@ -33,7 +33,7 @@ public class Mexico {
 		int playedAmt = 0; // Amount of players who made their turn this round
 		boolean roundDone = false;
 
-		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers)); // The players (array of Player objects)
+		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers())); // The players (array of Player objects)
 		current = players[playedAmt];
 		leader = current; // uhsssssshshhhhh
 
