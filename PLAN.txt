@@ -1,5 +1,4 @@
 1. Sum all the players' dices and save their values
 2. When the third player types n, choose the smallest value and kick the player
 3. Restart the round so that it is not fucked up
-4. Maybe find a better way of choosing who should play next (replace the rand-dependent loop)
 5. the pot????

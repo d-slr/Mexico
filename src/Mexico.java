@@ -100,13 +100,17 @@ public class Mexico {
 	int askNumberOfPlayers() {
 		int answer;
 		while (true) {
-			out.println("How many players? > ");
+			out.print("How many players? > ");
 			try {
 				answer = sc.nextInt();
-				if (answer < 0) {
+				if (answer > 1) {
+					sc.nextLine();
 					break;
+				} else {
+					throw new Exception();
 				}
 			} catch (Exception e) {
+				sc.nextLine();
 				out.println("Enter a valid int!!!");
 			}
 		}
@@ -123,10 +127,10 @@ public class Mexico {
 				out.println("Give the name for player " + i + "> ");
 				name = sc.nextLine();
 				if ((name == null || name.isEmpty() || name.trim().isEmpty())) {
+					out.println("Enter a valid non-empty name!!! ");
+				} else {
 					break;
 				}
-				out.println("Enter a valid non-empty name!!! ");
-
 			}
 			players[i] = new Player(name);
 		}
