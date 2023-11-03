@@ -37,8 +37,6 @@ public class Mexico {
 		current = players[playedAmt];
 		leader = current; // uhsssssshshhhhh
 
-
-
 		out.println("Mexico Game Started");
 		statusMsg(players);
 
