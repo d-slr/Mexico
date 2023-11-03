@@ -32,9 +32,11 @@ public class Mexico {
 		Player thrPlayer = null; // Player playing after the second player
 		int playedAmt = 0; // Amount of players who made their turn this round
 
-		players = getPlayers();
+		players = getPlayers(askNumberOfPlayers());
 		current = getRandomPlayer(players);
 		leader = current;
+
+
 
 		out.println("Mexico Game Started");
 		statusMsg(players);
@@ -103,11 +105,40 @@ public class Mexico {
 
 	// ---------- IO methods (nothing to do here) -----------------------
 
-	Player[] getPlayers() {
-		Player[] players = new Player[3];
-		players[0] = new Player("Olle");
-		players[1] = new Player("Fia");
-		players[2] = new Player("Lisa");
+	//returns the number of players
+	int askNumberOfPlayers() {
+		int answer;
+		while (true) {
+			out.println("How many players? > ");
+			try {
+				answer = sc.nextInt();
+				if (answer < 0) {
+					break;
+				}
+			} catch (Exception e) {
+				out.println("Enter a valid int!!!");
+			}
+		}
+		return answer;
+	}
+
+
+	//asks the name for every player, return a array of all the players
+	Player[] getPlayers(int numPs) {
+		Player[] players = new Player[numPs];
+		for (int i = 0; i < numPs; i++) {
+			String name;
+			while (true) {
+				out.println("Give the name for player " + i + "> ");
+				name = sc.nextLine();
+				if ((name == null || name.isEmpty() || name.trim().isEmpty())) {
+					break;
+				}
+				out.println("Enter a valid non-empty name!!! ");
+
+			}
+			players[i] = new Player(name);
+		}
 		return players;
 	}
 
