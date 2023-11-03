@@ -1,6 +1,10 @@
 
 import java.util.SplittableRandom;
 import java.util.Scanner;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 import static java.lang.System.*;
 
@@ -22,19 +26,16 @@ public class Mexico {
 	final int mexico = 1000; // A value greater than any other
 
 	void program() {
-		// test(); // <----------------- UNCOMMENT to test
-
+		// test(); // <----------------- UNCOMMENT to testa
 		int pot = 0; // What the winner will get
-		Player[] players; // The players (array of Player objects)
 		Player current; // Current player for round
 		Player leader; // Player starting the round
-		Player secPlayer = null; // Player playing after the leader
-		Player thrPlayer = null; // Player playing after the second player
 		int playedAmt = 0; // Amount of players who made their turn this round
+		boolean roundDone = false;
 
-		players = getPlayers(askNumberOfPlayers());
-		current = getRandomPlayer(players);
-		leader = current;
+		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers)); // The players (array of Player objects)
+		current = players[playedAmt];
+		leader = current; // uhsssssshshhhhh
 
 
 
@@ -50,30 +51,20 @@ public class Mexico {
 			// --- Process ------
 
 			// ---- Out --------
-			roundMsg(current);
 			current.fstDice = rand.nextInt(1,7);
 			current.secDice = rand.nextInt(1,7);
+			roundMsg(current);
 
 		} else if ("n".equals(cmd)) {
-			// Process
-			playedAmt++; //A player finished their turn
-			//a way of making n choose a different player each time within a round
-			//(suboptimal since rand for loop leads to unpredictable calculation times)
-			for (boolean played = true; played;){
-				current = players[rand.nextInt(3)];
-				if (playedAmt == 1) {//if 1 player has played
-					played = current == leader;//if the chosen player is leader, then he has already played
-					secPlayer = current; //choosing second player
-				} else if (playedAmt == 2) {//if 2 players have played
-					played = current == leader || current == secPlayer;//both the leader and the second player played
-					thrPlayer = current; //choosing third player
-				}
-			}
+			playedAmt++;
+			current = players[playedAmt];
 		} else {
 			out.println("?");
 		}
 
-		if (players.length < 3) { //removed the comment from the code and prevented it from running (spam)
+		if (roundDone) { //aughhhhhh
+			roundDone = false;
+			playedAmt = 0;
 		// --- Process -----
 
 		// ----- Out --------------------
@@ -99,8 +90,10 @@ public class Mexico {
 		return -1;
 	}
 
-	Player getRandomPlayer(Player[] players) {
-		return players[rand.nextInt(players.length)];
+	Player[] shufflePlayers(Player[] players) {
+		List<Player> playerList = new ArrayList<>(Arrays.asList(players));
+		Collections.shuffle(playerList);
+		return playerList.toArray(new Player[0]);
 	}
 
 	// ---------- IO methods (nothing to do here) -----------------------
@@ -174,8 +167,6 @@ public class Mexico {
 		public Player(String name){
 			this.name = name;
 			this.amount = startAmount;
-			this.fstDice = rand.nextInt(1,7);
-			this.secDice = rand.nextInt(1,7);
 			this.nRolls = 1;
 		}
 	}
