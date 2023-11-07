@@ -68,7 +68,7 @@ public class Mexico {
 
 			}
 
-			if (allRolled(players, playedAmt)) { //aughhhhhh
+			if (allRolled(players, playedAmt)) {
 				roundDone = false;
 				playedAmt = 0;
 				// --- Process -----
@@ -123,6 +123,7 @@ public class Mexico {
 		current.nRolls++;
 		roundMsg(current);
 	}
+	int p = 0;
 
 	Player[] shufflePlayers(Player[] players) {
 		List<Player> playerList = new ArrayList<>(Arrays.asList(players));
@@ -157,16 +158,11 @@ public class Mexico {
 		return lowest;
 	}
 
-
 	Player[] removeLoser(Player loser, Player[] players) {
 		List<Player> ps = Arrays.asList(players);
 		ps.remove(loser);
 		return ps.toArray(new Player[0]);
-
-
-
 	}
-
 
 	//returns the number of players
 
@@ -193,6 +189,11 @@ public class Mexico {
 		return answer;
 	}
 
+	int pot = 0;
+	int potAdd (Player loser, int pot){
+		loser.amount--;
+		pot++;
+	return pot;}
 
 	//asks the name for every player, return a array of all the players
 	Player[] getPlayers(int numPs) {
@@ -222,7 +223,9 @@ public class Mexico {
 	}
 
 	void roundMsg(Player current) {
-		out.println(current.name + " got " + current.fstDice + " and " + current.secDice);
+		out.println(current.name
+				+ " got " + current.fstDice
+				+ " and " + current.secDice);
 	}
 
 	String getPlayerChoice(Player player) {
@@ -232,7 +235,11 @@ public class Mexico {
 
 	// Possibly useful utility during development
 	String toString(Player p) {
-		return p.name + ", " + p.amount + ", " + p.fstDice + ", " + p.secDice + ", " + p.nRolls;
+		return p.name + ", "
+				+ p.amount + ", "
+				+ p.fstDice + ", "
+				+ p.secDice + ", "
+				+ p.nRolls;
 	}
 
 	// Class for a player
