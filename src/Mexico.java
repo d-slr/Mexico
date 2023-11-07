@@ -25,7 +25,7 @@ public class Mexico {
 		// test(); // <----------------- UNCOMMENT to testa
 		int pot = 0; // What the winner will get
 		Player current; // Current player for round
-		Player leader; // Player starting the round
+		Player leader = null; // Player starting the round
 		int playedAmt = 0; // Amount of players who made their turn this round
 		boolean roundDone = false;
 		int maxRolls = 3;
@@ -33,37 +33,28 @@ public class Mexico {
 
 		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers())); // The players (array of Player objects)
 		current = players[playedAmt];
-		leader = current;
 
 		out.println("Mexico Game Started");
 		statusMsg(players);
 
 		while (players.length > 1) { // Game over when only one player left
 
+			if (playedAmt == 0) {
+				leader = current;
+			}
+
 			String cmd = getPlayerChoice(current);
 
-			if (current.nRolls == 0 && cmd.equals("n")) {
-
-				out.println("Unable to skip yet, you roll instead");
-				cmd = "r";
-
+			if ((current.nRolls == maxRolls && (playedAmt + 1) == players.length) ||
+				((playedAmt + 1) == players.length && cmd.equals("n") && current.nRolls > 0)) {
+				endRound();
 			}
+
+			cmd = verifyCmd(cmd, playedAmt, players, current, maxRolls);
 
 			if ("r".equals(cmd)) {
 
-				if (current.nRolls == maxRolls) {
-
-					out.println("You have already rolled the maximum " +
-							"amount of times for this round, you skip instead");
-					playedAmt++;
-					maxRolls = leader.nRolls;
-					current = next(players, playedAmt);
-
-				} else {
-
 					rollDice(current);
-
-				}
 
 			} else if ("n".equals(cmd)) {
 
@@ -90,12 +81,14 @@ public class Mexico {
 			}
 		}
 		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot + " from pot");
+
 	}
+
+
 
 	// ---- Game logic methods --------------
 
 	// TODO implement and test methods (one at the time)
-
 	int indexOf(Player[] players, Player player) {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i] == player) {
@@ -104,10 +97,25 @@ public class Mexico {
 		}
 		return -1;
 	}
+	void endRound() {
+		out.println("Round ended");
+	}
 	Player next (Player[] players, int playedAmt) {
 
 		return players[playedAmt];
 
+	}
+	String verifyCmd(String cmd, int playedAmt, Player[] players, Player current, int maxRolls) {
+		if (cmd.equals("r") && current.nRolls == maxRolls) {
+			cmd = "n";
+			out.println("You have already rolled the maximum " +
+						"amount of times for this round, you skip instead");
+		} else if (cmd.equals("n") && current.nRolls == 0) {
+			cmd = "r";
+			out.println("Unable to skip yet, you roll instead");
+		}
+
+		return cmd;
 	}
 	void rollDice (Player current){
 		current.fstDice = rand.nextInt(1,7);
@@ -142,7 +150,7 @@ public class Mexico {
 	Player getLoser(Player[] players) {
 		Player lowest = players[players.length - 1];
 		for (Player p : players) {
-			if ((score(p) < score(lowest)) {
+			if (score(p) < score(lowest)) {
 				lowest = p;
 			}
 		}
