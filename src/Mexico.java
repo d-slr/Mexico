@@ -133,7 +133,7 @@ public class Mexico {
 	// ---------- IO methods (nothing to do here) -----------------------
 
 	//Return value of a players roll, accounting for doublettes and mexico
-	int score(Player player) {
+	int getScore(Player player) {
 		int a = player.fstDice;
 		int b = player.secDice;
 		if (a == b) {
@@ -150,12 +150,23 @@ public class Mexico {
 	Player getLoser(Player[] players) {
 		Player lowest = players[players.length - 1];
 		for (Player p : players) {
-			if (score(p) < score(lowest)) {
+			if (getScore(p) < getScore(lowest)) {
 				lowest = p;
 			}
 		}
 		return lowest;
 	}
+
+
+	Player[] removeLoser(Player loser, Player[] players) {
+		List<Player> ps = Arrays.asList(players);
+		ps.remove(loser);
+		return ps.toArray(new Player[0]);
+
+
+
+	}
+
 
 	//returns the number of players
 
