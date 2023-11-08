@@ -36,7 +36,6 @@ public class Mexico {
 		statusMsg(players); // Output how many tokens are in players' possession
 
 		while (players.length > 1) { // Game over when only one player left
-
 			if (playedAmt == 0) {
 				leader = current; //The first player making their turn in a round == leader
 			}
@@ -55,17 +54,12 @@ public class Mexico {
 			//checks if the received command is applicable in the current game context
 			//if not, alerts the player and changes it
 			cmd = verifyCmd(cmd, playedAmt, players, current, maxRolls);
-
 			if ("r".equals(cmd)) {
-
 					rollDice(current);
-
 			} else if ("n".equals(cmd)) {
-
 				playedAmt++; //n was received, so a player has played
 				maxRolls = leader.nRolls; //maxRolls depends on how many times the leader rolled
 				current = next(players, playedAmt); //passes the turn to the next player
-
 			} else {
 
 				out.println("No such command"); //Player answered something else than r or n, repeat the move.
@@ -80,121 +74,94 @@ public class Mexico {
 	blir det losern som börjar nästa round.
 	 */
 	Player[] endRound(Player[] players, Pot pot) {
-
 		for (Player player : players) {
 			player.nRolls = 0;
 		}
-
 		Player loser = getLoser(players);
 		out.println("Round ended, " + loser.name + " lost");
 		potAdd(loser, pot);
 
 		if(loser.amount < 1) {
-
 			out.println(loser.name + " is eliminated");
 			return shufflePlayers(removeLoser(loser, players));
-
 		} else {
-
 			players = shufflePlayers(players);
 			List<Player> playerList = Arrays.asList(players);
 			Collections.swap(playerList, 0, playerList.indexOf(loser));
 			return playerList.toArray(players);
-
 		}
 	}
 
-	//Returnerar playern med index playedAmt. Används när playedAMt har inkrementerats och nästa spelare ska spela
+	/*Returnerar playern med index playedAmt.
+	Används när playedAMt har inkrementerats och nästa spelare ska spela
+	 */
 	Player next (Player[] players, int playedAmt) {
-
 		return players[playedAmt];
 
 	}
-
+	/* Tar cmd antalet spelare som har spelat, antalet spelare,
+	vem som är current och hur mnga. ggr. man får rolla.
+	om man försöker rolla när maxrolls är uppfyllt så tvingar den "n"
+	Om man försöker skippa men inte har rollat någon gång så tvingar den en roll.
+	 */
 	String verifyCmd(String cmd, int playedAmt, Player[] players, Player current, int maxRolls) {
-
 		if (cmd.equals("r") && current.nRolls == maxRolls) {
-
 			cmd = "n";
 			out.println("You have already rolled the maximum " +
 						"amount of times for this round, you skip instead");
-
 		} else if (cmd.equals("n") && current.nRolls == 0) {
-
 			cmd = "r";
 			out.println("Unable to skip yet, you roll instead");
-
 		}
 		return cmd;
 	}
 
 	//Slumpar två tal för fstDice och sndDice. Inkrementerar nRolls, visar statusmeddelande
 	void rollDice (Player current){
-
 		current.fstDice = rand.nextInt(1,7);
 		current.secDice = rand.nextInt(1,7);
 		current.nRolls++;
 		roundMsg(current);
-
 	}
 
-	/*GÖr players-arrayen till en arrayList, gör shuffle på den, returnerar den shufflade arrayen, konverterad
-	tillbaka till en player-array */
+	/*GÖr players-arrayen till en arrayList, gör shuffle på den,
+	 returnerar den shufflade arrayen, konverterad tillbaka till en player-array */
 	Player[] shufflePlayers(Player[] players) {
-
 		List<Player> playerList = new ArrayList<>(Arrays.asList(players));
 		Collections.shuffle(playerList);
 		return playerList.toArray(new Player[0]);
-
 	}
 
 	//Return value of a players roll, accounting for doublettes and mexico
 	int getScore(Player player) {
-
 		int a = player.fstDice;
 		int b = player.secDice;
-
 		if (a == b) {
-
 			return a * 100;
-
 		} else if (a+b == 3) {
-
 			return mexico;
-
 		} else {
-
 			return (Math.max(a, b) * 10) + Math.min (a, b);
-
 		}
-
 	}
 
 	//Returns first player with the lowest score
 	Player getLoser(Player[] players) {
-
 		Player lowest = players[players.length - 1];
-
 		for (Player p : players) {
-
 			if (getScore(p) < getScore(lowest)) {
-
 				lowest = p;
-
 			}
-		}
-		return lowest;
+		} return lowest;
 	}
 
 
 	/* konverterar players till en arrayList, använder metoden remove för att ta bort loser. Funkar för att
 	loser är den första i listan om flera har lika låg poäng. */
 	Player[] removeLoser(Player loser, Player[] players) {
-
 		List<Player> ps	= new ArrayList<>(Arrays.asList(players));
 		ps.remove(loser);
 		return ps.toArray(new Player[0]);
-
 	}
 
 	//returns the number of players
@@ -220,22 +187,18 @@ public class Mexico {
 
 	//Tar bort ett poäng från en spelare, ökar value i pot med 1.
 	void potAdd (Player loser, Pot pot) {
-
 		loser.amount--;
 		pot.value++;
-
 	}
 
 	//asks the name for every player, return an array of all the players
 	Player[] getPlayers(int numPs) {
 		Player[] players = new Player[numPs];
-
 		for (int i = 0; i < numPs; i++) {
 			String name;
 			while (true) {
 				out.print("Give the name for player " + (i+1) + "> ");
 				name = sc.nextLine();
-
 				if ((name == null || name.isEmpty() || name.trim().isEmpty())) {
 					out.println("Enter a valid non-empty name!!! ");
 				} else {
@@ -249,42 +212,31 @@ public class Mexico {
 
 	//Prints name and score for every player
 	void statusMsg(Player[] players) {
-
 		out.print("Status: ");
-
         for (Player player : players) {
-
             out.print(player.name + " " + player.amount + " ");
-
         }
 		out.println();
 	}
 
 	//Print what player rolled
 	void roundMsg(Player current) {
-
 		out.println(current.name
 				+ " got " + current.fstDice
 				+ " and " + current.secDice);
-
 	}
 
 	//Print who is current player, returns player choice
 	String getPlayerChoice(Player player) {
-
 		out.print("Player is " + player.name + " > ");
 		return sc.nextLine();
-
 	}
 
 	//Pot är en klass så variablerna i ett pot-objekt kan ändras i olika scope.
 	class Pot {
 		int value;
-
 		public Pot(int value){
-
 			this.value = value;
-
 		}
 	}
 	// Class for a player
