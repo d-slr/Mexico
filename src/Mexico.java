@@ -1,20 +1,11 @@
-
 import java.util.*;
-
 import java.lang.Math;
-
 import static java.lang.System.*;
-
-/*
- *  The Mexico dice game
- *  See https://en.wikipedia.org/wiki/Mexico_(game)
- */
 public class Mexico {
 
 	public static void main(String[] args) {
 		new Mexico().program();
 	}
-
 	final SplittableRandom rand = new SplittableRandom();
 	final Scanner sc = new Scanner(in);
 	final int startAmount = 3; // Amount of tokens every player has
@@ -36,10 +27,10 @@ public class Mexico {
 		statusMsg(players); // Output how many tokens are in players' possession
 
 		while (players.length > 1) { // Game over when only one player left
+
 			if (playedAmt == 0) {
 				leader = current; //The first player making their turn in a round == leader
 			}
-
 			String cmd = getPlayerChoice(current).toLowerCase(); //Get the current players command
 			//Checks if the round has ended, if so, resets all values to start a new one
 			if ((current.nRolls == maxRolls && (playedAmt + 1) == players.length) ||
@@ -61,9 +52,7 @@ public class Mexico {
 				maxRolls = leader.nRolls; //maxRolls depends on how many times the leader rolled
 				current = next(players, playedAmt); //passes the turn to the next player
 			} else {
-
 				out.println("No such command"); //Player answered something else than r or n, repeat the move.
-
 			}
 		}
 		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot.value + " from pot");
@@ -85,8 +74,8 @@ public class Mexico {
 			out.println(loser.name + " is eliminated");
 			return shufflePlayers(removeLoser(loser, players));
 		} else {
-			players = shufflePlayers(players);
 			List<Player> playerList = Arrays.asList(players);
+			Collections.shuffle(playerList);
 			Collections.swap(playerList, 0, playerList.indexOf(loser));
 			return playerList.toArray(players);
 		}
@@ -97,8 +86,8 @@ public class Mexico {
 	 */
 	Player next (Player[] players, int playedAmt) {
 		return players[playedAmt];
-
 	}
+
 	/* Tar cmd antalet spelare som har spelat, antalet spelare,
 	vem som är current och hur mnga. ggr. man får rolla.
 	om man försöker rolla när maxrolls är uppfyllt så tvingar den "n"
@@ -116,7 +105,7 @@ public class Mexico {
 		return cmd;
 	}
 
-	//Slumpar två tal för fstDice och sndDice. Inkrementerar nRolls, visar statusmeddelande
+	//Slumpar två tal för fstDice och sndDice. Inkrementerar nRolls, visar statusmeddelandet
 	void rollDice (Player current){
 		current.fstDice = rand.nextInt(1,7);
 		current.secDice = rand.nextInt(1,7);
@@ -124,8 +113,8 @@ public class Mexico {
 		roundMsg(current);
 	}
 
-	/*GÖr players-arrayen till en arrayList, gör shuffle på den,
-	 returnerar den shufflade arrayen, konverterad tillbaka till en player-array */
+	//Gör players-arrayen till en List och blandar den.
+	//Konverterar den tillbaka till en array och returnerar den
 	Player[] shufflePlayers(Player[] players) {
 		List<Player> playerList = new ArrayList<>(Arrays.asList(players));
 		Collections.shuffle(playerList);
@@ -145,7 +134,7 @@ public class Mexico {
 		}
 	}
 
-	//Returns first player with the lowest score
+	//Returns the first player with the lowest score
 	Player getLoser(Player[] players) {
 		Player lowest = players[players.length - 1];
 		for (Player p : players) {
@@ -155,16 +144,15 @@ public class Mexico {
 		} return lowest;
 	}
 
-
-	/* konverterar players till en arrayList, använder metoden remove för att ta bort loser. Funkar för att
-	loser är den första i listan om flera har lika låg poäng. */
+	//Konverterar players till en arrayList, använder metoden remove för att ta bort loser.
+	//Funkar för att loser är den första i listan om flera har lika låg poäng.
 	Player[] removeLoser(Player loser, Player[] players) {
 		List<Player> ps	= new ArrayList<>(Arrays.asList(players));
 		ps.remove(loser);
 		return ps.toArray(new Player[0]);
 	}
 
-	//returns the number of players
+	//Returns the initial amount of players
 	int askNumberOfPlayers() {
 		int answer;
 		while (true) {
@@ -185,13 +173,13 @@ public class Mexico {
 		return answer;
 	}
 
-	//Tar bort ett poäng från en spelare, ökar value i pot med 1.
+	//Flyttar ett polett från förloraren till potten
 	void potAdd (Player loser, Pot pot) {
 		loser.amount--;
 		pot.value++;
 	}
 
-	//asks the name for every player, return an array of all the players
+	//Asks the name for every player, return an array of all the players
 	Player[] getPlayers(int numPs) {
 		Player[] players = new Player[numPs];
 		for (int i = 0; i < numPs; i++) {
@@ -219,14 +207,14 @@ public class Mexico {
 		out.println();
 	}
 
-	//Print what player rolled
+	//Print which player rolled
 	void roundMsg(Player current) {
 		out.println(current.name
 				+ " got " + current.fstDice
 				+ " and " + current.secDice);
 	}
 
-	//Print who is current player, returns player choice
+	//Print who the current player is and return their command of choice
 	String getPlayerChoice(Player player) {
 		out.print("Player is " + player.name + " > ");
 		return sc.nextLine();
@@ -239,44 +227,18 @@ public class Mexico {
 			this.value = value;
 		}
 	}
-	// Class for a player
+
+	//Player is a class with 5 attributes
 	class Player {
-		String name;
-		int amount; // Start amount (money)
-		int fstDice; // Result of first dice
-		int secDice; // Result of second dice
-		int nRolls; // Current number of rolls
-		public Player(String name){
+		String name; //Player's name
+		int amount; //Start amount of tokens
+		int fstDice; //Value of the first dice
+		int secDice; //Value of the second dice
+		int nRolls; //Amount of times rolled during the current round
+		public Player(String name){ //Constructor for the Player class
 			this.name = name;
 			this.amount = startAmount;
 			this.nRolls = 0;
 		}
 	}
-
-	/**************************************************
-	 * Testing
-	 *
-	 * Test are logical expressions that should evaluate to true (and then be
-	 * written out) No testing of IO methods Uncomment in program() to run test
-	 * (only)
-	 ***************************************************/
-	void test() {
-		// A few hard coded player to use for test
-		// NOTE: Possible to debug tests from here, very efficient!
-		Player[] ps = { new Player("Bob"), new Player("Alice"), new Player("Big Brain") };
-		ps[0].fstDice = 2;
-		ps[0].secDice = 6;
-		ps[1].fstDice = 6;
-		ps[1].secDice = 5;
-		ps[2].fstDice = 1;
-		ps[2].secDice = 1;
-
-		// out.println(getScore(ps[0]) == 62);
-		// out.println(getScore(ps[1]) == 65);
-		// out.println(next(ps, ps[0]) == ps[1]);
-		// out.println(getLoser(ps) == ps[0]);
-
-		exit(0);
-	}
-
 }
