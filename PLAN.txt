@@ -1,4 +1,1 @@
-1. Sum all the players' dices and save their values
-2. When the third player types n, choose the smallest value and kick the player
-3. Restart the round so that it is not fucked up
-5. the pot????
+TESTA VAD SOM HÄNDER OM FLERA PLAYERS HAR BARA 1 TOKEN OCH FÅR LIKADANA ROLLS

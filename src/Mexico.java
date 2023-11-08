@@ -8,7 +8,6 @@ import static java.lang.System.*;
 /*
  *  The Mexico dice game
  *  See https://en.wikipedia.org/wiki/Mexico_(game)
- *
  */
 public class Mexico {
 
@@ -18,38 +17,43 @@ public class Mexico {
 
 	final SplittableRandom rand = new SplittableRandom();
 	final Scanner sc = new Scanner(in);
-	final int startAmount = 3; // Money for a player. Select any
+	final int startAmount = 3; // Amount of tokens every player has
 	final int mexico = 1000; // A value greater than any other
 
 	void program() {
-		// test(); // <----------------- UNCOMMENT to testa
-		int pot = 0; // What the winner will get
-		Player current; // Current player for round
-		Player leader = null; // Player starting the round
+
+		Pot pot = new Pot(0); // What the winner will get
+		Player current; // The game will await inputs from this player
+		Player leader = null; // Player starting the round (loser of previous round)
 		int playedAmt = 0; // Amount of players who made their turn this round
-		boolean roundDone = false;
-		int maxRolls = 3;
+		int maxRolls = 3; // Max amount of rolls for every player for the current round
 
-
-		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers())); // The players (array of Player objects)
-		current = players[playedAmt];
+		Player[] players = shufflePlayers(getPlayers(askNumberOfPlayers())); // Shuffle the players
+		current = players[playedAmt];// Nobody has made a turn yet, so == first player
 
 		out.println("Mexico Game Started");
-		statusMsg(players);
+		out.println("Controls:\nr - roll\nn - next");
+		statusMsg(players); // Output how many tokens are in players' possession
 
 		while (players.length > 1) { // Game over when only one player left
 
 			if (playedAmt == 0) {
-				leader = current;
+				leader = current; //The first player making their turn in a round == leader
 			}
 
-			String cmd = getPlayerChoice(current);
-
+			String cmd = getPlayerChoice(current).toLowerCase(); //Get the current players command
+			//Checks if the round has ended, if so, resets all values to start a new one
 			if ((current.nRolls == maxRolls && (playedAmt + 1) == players.length) ||
 				((playedAmt + 1) == players.length && cmd.equals("n") && current.nRolls > 0)) {
-				endRound();
+				maxRolls = 3;
+				playedAmt = 0;
+				players = endRound(players, pot); //resets values, handles pot and kicks loser
+				current = players[0];
+				statusMsg(players);
+				continue;
 			}
-
+			//checks if the received command is applicable in the current game context
+			//if not, alerts the player and changes it
 			cmd = verifyCmd(cmd, playedAmt, players, current, maxRolls);
 
 			if ("r".equals(cmd)) {
@@ -58,47 +62,42 @@ public class Mexico {
 
 			} else if ("n".equals(cmd)) {
 
-				playedAmt++;
-				maxRolls = leader.nRolls;
-				current = next(players, playedAmt);
+				playedAmt++; //n was received, so a player has played
+				maxRolls = leader.nRolls; //maxRolls depends on how many times the leader rolled
+				current = next(players, playedAmt); //passes the turn to the next player
 
 			} else {
 
-				out.println("life goes onandonandon");
+				out.println("No such command");
 
-			}
-
-			if (allRolled(players, playedAmt)) {
-				roundDone = false;
-				playedAmt = 0;
-				// --- Process -----
-
-				// ----- Out --------------------
-				out.println("Round done ... lost!");
-				out.println("Next to roll is " + current.name);
-
-				statusMsg(players);
 			}
 		}
-		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot + " from pot");
-
+		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot.value + " from pot");
 	}
 
+	Player[] endRound(Player[] players, Pot pot) {
 
-
-	// ---- Game logic methods --------------
-
-	// TODO implement and test methods (one at the time)
-	int indexOf(Player[] players, Player player) {
-		for (int i = 0; i < players.length; i++) {
-			if (players[i] == player) {
-				return i;
-			}
+		for (Player player : players) {
+			player.nRolls = 0;
 		}
-		return -1;
-	}
-	void endRound() {
-		out.println("Round ended");
+
+		Player loser = getLoser(players);
+		out.println("Round ended, " + loser.name + " lost");
+		pot = potAdd(loser, pot);
+
+		if(loser.amount < 1) {
+
+			out.println(loser.name + " is eliminated");
+			return shufflePlayers(removeLoser(loser, players));
+
+		} else {
+
+			players = shufflePlayers(players);
+			List<Player> playerList = Arrays.asList(players);
+			Collections.swap(playerList, 0, playerList.indexOf(loser));
+			return playerList.toArray(players);
+
+		}
 	}
 	Player next (Player[] players, int playedAmt) {
 
@@ -106,107 +105,148 @@ public class Mexico {
 
 	}
 	String verifyCmd(String cmd, int playedAmt, Player[] players, Player current, int maxRolls) {
+
 		if (cmd.equals("r") && current.nRolls == maxRolls) {
+
 			cmd = "n";
 			out.println("You have already rolled the maximum " +
 						"amount of times for this round, you skip instead");
+
 		} else if (cmd.equals("n") && current.nRolls == 0) {
+
 			cmd = "r";
 			out.println("Unable to skip yet, you roll instead");
-		}
 
+		}
 		return cmd;
 	}
 	void rollDice (Player current){
+
 		current.fstDice = rand.nextInt(1,7);
 		current.secDice = rand.nextInt(1,7);
 		current.nRolls++;
 		roundMsg(current);
+
 	}
-	int p = 0;
+	int p = 0; // ????????????????????? vad är det för goofy ahh unused declaration mitt i koden
 
 	Player[] shufflePlayers(Player[] players) {
+
 		List<Player> playerList = new ArrayList<>(Arrays.asList(players));
 		Collections.shuffle(playerList);
 		return playerList.toArray(new Player[0]);
-	}
 
-	// ---------- IO methods (nothing to do here) -----------------------
+	}
 
 	//Return value of a players roll, accounting for doublettes and mexico
 	int getScore(Player player) {
+
 		int a = player.fstDice;
 		int b = player.secDice;
+
 		if (a == b) {
+
 			return a * 100;
+
 		} else if (a+b == 3) {
+
 			return mexico;
+
 		} else {
+
 			return (Math.max(a, b) * 10) + Math.min (a, b);
+
 		}
 
 	}
 
 	//Returns first player with lowest score
 	Player getLoser(Player[] players) {
+
 		Player lowest = players[players.length - 1];
+
 		for (Player p : players) {
+
 			if (getScore(p) < getScore(lowest)) {
+
 				lowest = p;
+
 			}
 		}
 		return lowest;
 	}
 
 	Player[] removeLoser(Player loser, Player[] players) {
-		List<Player> ps = Arrays.asList(players);
+
+		List<Player> ps	= new ArrayList<Player> (Arrays.asList(players));
 		ps.remove(loser);
 		return ps.toArray(new Player[0]);
+
 	}
 
 	//returns the number of players
-
-	boolean allRolled(Player[] players, int playedAmt){
-		return players.length == playedAmt;
-	}
 	int askNumberOfPlayers() {
+
 		int answer;
+
 		while (true) {
+
 			out.print("How many players? > ");
+
 			try {
+
 				answer = sc.nextInt();
+
 				if (answer > 1) {
+
 					sc.nextLine();
 					break;
+
 				} else {
+
 					throw new Exception();
+
 				}
 			} catch (Exception e) {
+
 				sc.nextLine();
 				out.println("Enter a valid int!!!");
+
 			}
 		}
 		return answer;
 	}
 
-	int pot = 0;
-	int potAdd (Player loser, int pot){
+	Pot potAdd (Player loser, Pot pot) {
+
 		loser.amount--;
-		pot++;
-	return pot;}
+		pot.value++;
+		return pot;
+
+	}
 
 	//asks the name for every player, return a array of all the players
 	Player[] getPlayers(int numPs) {
+
 		Player[] players = new Player[numPs];
+
 		for (int i = 0; i < numPs; i++) {
+
 			String name;
+
 			while (true) {
-				out.println("Give the name for player " + (i+1) + "> ");
+
+				out.print("Give the name for player " + (i+1) + "> ");
 				name = sc.nextLine();
+
 				if ((name == null || name.isEmpty() || name.trim().isEmpty())) {
+
 					out.println("Enter a valid non-empty name!!! ");
+
 				} else {
+
 					break;
+
 				}
 			}
 			players[i] = new Player(name);
@@ -215,33 +255,41 @@ public class Mexico {
 	}
 
 	void statusMsg(Player[] players) {
+
 		out.print("Status: ");
-		for (int i = 0; i < players.length; i++) {
-			out.print(players[i].name + " " + players[i].amount + " ");
-		}
+
+        for (Player player : players) {
+
+            out.print(player.name + " " + player.amount + " ");
+
+        }
 		out.println();
 	}
 
 	void roundMsg(Player current) {
+
 		out.println(current.name
 				+ " got " + current.fstDice
 				+ " and " + current.secDice);
+
 	}
 
 	String getPlayerChoice(Player player) {
+
 		out.print("Player is " + player.name + " > ");
 		return sc.nextLine();
+
 	}
 
-	// Possibly useful utility during development
-	String toString(Player p) {
-		return p.name + ", "
-				+ p.amount + ", "
-				+ p.fstDice + ", "
-				+ p.secDice + ", "
-				+ p.nRolls;
-	}
+	class Pot {
+		int value;
 
+		public Pot(int value){
+
+			this.value = value;
+
+		}
+	}
 	// Class for a player
 	class Player {
 		String name;
