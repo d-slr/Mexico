@@ -48,9 +48,9 @@ public class Mexico {
 				maxRolls = 3;
 				playedAmt = 0;
 				players = endRound(players, pot); //resets values, handles pot and kicks loser
-				current = players[0];
+				current = players[playedAmt];
 				statusMsg(players);
-				continue;
+				continue; //skip to the next round
 			}
 			//checks if the received command is applicable in the current game context
 			//if not, alerts the player and changes it
@@ -68,13 +68,17 @@ public class Mexico {
 
 			} else {
 
-				out.println("No such command");
+				out.println("No such command"); //Player answered something else than r or n, repeat the move.
 
 			}
 		}
 		out.println("Game Over, winner is " + players[0].name + ". Will get " + pot.value + " from pot");
 	}
 
+	/*Resettar alla spelares nRolls till 0. Flyttar ett poäng från loser till pot. Ifall loser har 0 poäng
+	tas den spelaren bort från players. I båda fallen shufflas ordningen på players, och ifall losern är kvar
+	blir det losern som börjar nästa round.
+	 */
 	Player[] endRound(Player[] players, Pot pot) {
 
 		for (Player player : players) {
@@ -83,7 +87,7 @@ public class Mexico {
 
 		Player loser = getLoser(players);
 		out.println("Round ended, " + loser.name + " lost");
-		pot = potAdd(loser, pot);
+		potAdd(loser, pot);
 
 		if(loser.amount < 1) {
 
@@ -99,11 +103,14 @@ public class Mexico {
 
 		}
 	}
+
+	//Returnerar playern med index playedAmt. Används när playedAMt har inkrementerats och nästa spelare ska spela
 	Player next (Player[] players, int playedAmt) {
 
 		return players[playedAmt];
 
 	}
+
 	String verifyCmd(String cmd, int playedAmt, Player[] players, Player current, int maxRolls) {
 
 		if (cmd.equals("r") && current.nRolls == maxRolls) {
@@ -120,6 +127,8 @@ public class Mexico {
 		}
 		return cmd;
 	}
+
+	//Slumpar två tal för fstDice och sndDice. Inkrementerar nRolls, visar statusmeddelande
 	void rollDice (Player current){
 
 		current.fstDice = rand.nextInt(1,7);
@@ -128,8 +137,9 @@ public class Mexico {
 		roundMsg(current);
 
 	}
-	int p = 0; // ????????????????????? vad är det för goofy ahh unused declaration mitt i koden
 
+	/*GÖr players-arrayen till en arrayList, gör shuffle på den, returnerar den shufflade arrayen, konverterad
+	tillbaka till en player-array */
 	Player[] shufflePlayers(Player[] players) {
 
 		List<Player> playerList = new ArrayList<>(Arrays.asList(players));
@@ -160,7 +170,7 @@ public class Mexico {
 
 	}
 
-	//Returns first player with lowest score
+	//Returns first player with the lowest score
 	Player getLoser(Player[] players) {
 
 		Player lowest = players[players.length - 1];
@@ -176,9 +186,12 @@ public class Mexico {
 		return lowest;
 	}
 
+
+	/* konverterar players till en arrayList, använder metoden remove för att ta bort loser. Funkar för att
+	loser är den första i listan om flera har lika låg poäng. */
 	Player[] removeLoser(Player loser, Player[] players) {
 
-		List<Player> ps	= new ArrayList<Player> (Arrays.asList(players));
+		List<Player> ps	= new ArrayList<>(Arrays.asList(players));
 		ps.remove(loser);
 		return ps.toArray(new Player[0]);
 
@@ -186,67 +199,47 @@ public class Mexico {
 
 	//returns the number of players
 	int askNumberOfPlayers() {
-
 		int answer;
-
 		while (true) {
-
 			out.print("How many players? > ");
-
 			try {
-
 				answer = sc.nextInt();
-
 				if (answer > 1) {
-
 					sc.nextLine();
 					break;
-
 				} else {
-
 					throw new Exception();
-
 				}
 			} catch (Exception e) {
-
 				sc.nextLine();
 				out.println("Enter a valid int!!!");
-
 			}
 		}
 		return answer;
 	}
 
-	Pot potAdd (Player loser, Pot pot) {
+	//Tar bort ett poäng från en spelare, ökar value i pot med 1.
+	void potAdd (Player loser, Pot pot) {
 
 		loser.amount--;
 		pot.value++;
-		return pot;
 
 	}
 
-	//asks the name for every player, return a array of all the players
+	//asks the name for every player, return an array of all the players
 	Player[] getPlayers(int numPs) {
-
 		Player[] players = new Player[numPs];
 
 		for (int i = 0; i < numPs; i++) {
-
 			String name;
-
 			while (true) {
-
 				out.print("Give the name for player " + (i+1) + "> ");
 				name = sc.nextLine();
 
 				if ((name == null || name.isEmpty() || name.trim().isEmpty())) {
-
 					out.println("Enter a valid non-empty name!!! ");
-
 				} else {
-
 					break;
-
 				}
 			}
 			players[i] = new Player(name);
@@ -254,6 +247,7 @@ public class Mexico {
 		return players;
 	}
 
+	//Prints name and score for every player
 	void statusMsg(Player[] players) {
 
 		out.print("Status: ");
@@ -266,6 +260,7 @@ public class Mexico {
 		out.println();
 	}
 
+	//Print what player rolled
 	void roundMsg(Player current) {
 
 		out.println(current.name
@@ -274,6 +269,7 @@ public class Mexico {
 
 	}
 
+	//Print who is current player, returns player choice
 	String getPlayerChoice(Player player) {
 
 		out.print("Player is " + player.name + " > ");
@@ -281,6 +277,7 @@ public class Mexico {
 
 	}
 
+	//Pot är en klass så variablerna i ett pot-objekt kan ändras i olika scope.
 	class Pot {
 		int value;
 
@@ -314,7 +311,7 @@ public class Mexico {
 	void test() {
 		// A few hard coded player to use for test
 		// NOTE: Possible to debug tests from here, very efficient!
-		Player[] ps = { new Player("Allah"), new Player("Jesus"), new Player("Big Chungus") };
+		Player[] ps = { new Player("Bob"), new Player("Alice"), new Player("Big Brain") };
 		ps[0].fstDice = 2;
 		ps[0].secDice = 6;
 		ps[1].fstDice = 6;
